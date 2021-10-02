@@ -15,7 +15,7 @@ function createWindow() {
       devTools: true
     }
   })
-
+  // console.log("Sanity Check #1");
   // Clear cache to force login screen (to get id_token)
   win.webContents.session.clearCache()
   win.webContents.session.clearAuthCache()
@@ -26,11 +26,22 @@ function createWindow() {
 
   win.loadURL('https://teams.microsoft.com')
 
+  //console.log("Sanity Check #2: Loaded Teams?");
+
   win.webContents.on('will-redirect', (_, url) => {
-    const match = url.match(/go#id_token=([^&]+)/)
+    
+    const match = url.match(/go#id_token=([^&]+)/) // ---> http://www.cplusplus.com/reference/regex/
+    console.log("this is match");
+    console.log(match);
+    
     if (match) {
       details.idToken = match[1]
-      details.oid = JSON.parse(atob(match[1].split('.')[1])).oid
+      details.oid = JSON.parse(atob(match[1].split('.')[1])).oid //atob decoding specific format ---> https://developer.mozilla.org/en-US/docs/Web/API/atob
+      console.log(atob(match[1].split('.')[1])); //curious to see what's printed
+      console.log("idToken printed is ");
+      console.log(details.idToken);
+      console.log("oid printed is ");
+      console.log(details.oid);
     }
   })
 
@@ -55,7 +66,10 @@ function createWindow() {
 
       // write credentials to file and exit
       // this implementation should be changed soon, but for reverse engineering, this is fine
+      console.log("Details: ");
+      console.log(details);
       fs.writeFileSync('ms-teams-credentials.local.json', JSON.stringify(details))
+      console.log("Wrote To File");
       process.exit(0)
     })
   })
